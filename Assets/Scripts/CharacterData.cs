@@ -27,8 +27,9 @@ public class CharacterData : ScriptableObject
     public string characterName;        
     public List<FaceDataEnum> faces = new List<FaceDataEnum>();
 
-    public Sprite GetFace(EmotionType emotion)
+    public Sprite GetFace(EmotionType? emotion)
     {
+        emotion ??= EmotionType.Normal;
         var target = faces.FirstOrDefault(f => f.emotionType == emotion);
         return target.faceSprite;
     }

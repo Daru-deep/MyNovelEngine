@@ -1,0 +1,103 @@
+{
+  "project": "MyNovelEngine",
+  "overview": "汎用ノベルエンジン。CSVでシナリオを管理し、ScriptableObjectでデータを整理する構成。",
+
+  "architecture": {
+    "flow": [
+      "GameFlowManager が全章の StoryDataSO を管理し、StoryManager に渡す",
+      "StoryManager は渡された StoryDataSO を CsvInput に解析させる",
+      "CsvInput が CSV を読み込み DialogueData のリストを作る",
+      "StoryManager が DialogueData の「キャラ名・表情」をキーに CharacterRegistrySO から画像を取得",
+      "StoryManager が UI（テキスト・立ち絵・背景）に反映する"
+    ]
+  },
+
+  "scripts": {
+    "GameFlowManager": {
+      "type": "MonoBehaviour",
+      "role": "全章の進行管理。どのシナリオを再生するかを StoryManager に指示する。",
+      "holds": ["List<StoryDataSO>（全章）", "StoryManager への参照"],
+      "note": "StoryManager の OnStoryEnd を購読し、章末で次の章を自動ロードする。"
+    },
+    "StoryManager": {
+      "type": "MonoBehaviour",
+      "role": "シナリオの再生専用。渡された StoryDataSO を元に UI を更新する。",
+      "inspector": ["background（Image）", "storyText（TextMeshProUGUI）", "characterImage1/2/3（Image）", "characterRegistry（CharacterRegistrySO）"],
+      "internal": ["CsvInput（new() で自動生成、Inspector不要）", "backgroundSprites（StoryDataSO から取得）"],
+      "events": {
+        "OnStoryEnd": "章の最後（nextID == -1）に発火。GameFlowManager が購読する。"
+      },
+      "note": "章管理は持たない。GameFlowManager から LoadStory() を呼ばれて動く。characterNameDisplay は不使用のため削除済み。"
+    },
+    "CsvInput": {
+      "type": "通常のC#クラス（MonoBehaviourではない）",
+      "role": "CSV の解析担当。StoryDataSO から csvFile を受け取り DialogueData のリストを作る。",
+      "note": "StoryManager が new() で内部生成するため Inspector に登録不要。int.TryParse を使用し、空セルは 0、nextID の空は -1 に変換する。"
+    },
+    "CharacterData": {
+      "type": "ScriptableObject",
+      "role": "1キャラ分のデータ。表情ごとのスプライト画像を持つ。",
+      "note": "GetFace(EmotionType?) で表情のスプライトを返す。null が渡された場合は Normal にフォールバック。"
+    },
+    "CharacterRegistrySO": {
+      "type": "ScriptableObject",
+      "role": "全キャラクターの辞書。キャラ名で CharacterData を引くための一覧。",
+      "note": "同じキャラを複数のシナリオで使い回せる。将来 Addressables に移行する際もここだけ変えれば済む。"
+    },
+    "StoryDataSO": {
+      "type": "ScriptableObject",
+      "role": "1話分のシナリオデータ。タイトル・CSV・背景スプライトを持つ。",
+      "note": "キャラ画像は持たない。背景は話ごとに変わるためここで管理。1話1SOで管理する。"
+    }
+  },
+
+  "csv_format": {
+    "columns": [
+      "0: id",
+      "1: char1（キャラ名1）",
+      "2: emo1（表情1）",
+      "3: char2（キャラ名2）",
+      "4: emo2（表情2）",
+      "5: char3（キャラ名3）",
+      "6: emo3（表情3）",
+      "7: text（セリフ）",
+      "8: bg（背景画像番号）",
+      "9: bgm（BGM番号）",
+      "10: se（SE番号）",
+      "11: next（次のID）"
+    ],
+    "rules": {
+      "empty_char": "キャラなしは 'empty' と記入",
+      "empty_num": "数値列が空の場合は 0 として扱う",
+      "nextID_empty": "next列が空の場合は章末とみなし -1 として扱う"
+    }
+  },
+
+  "scene_hierarchy": {
+    "canvas": ["Background（Image）", "CharacterImage1（Image）", "CharacterImage2（Image）", "CharacterImage3（Image）", "StoryText（TextMeshProUGUI）"],
+    "other": ["Manager（GameFlowManager + StoryManager をアタッチ）", "EventSystem（Canvas作成時に自動生成）"]
+  },
+
+  "design_decisions": [
+    {
+      "decision": "ScriptableObject に CSV を持たせる（解析済みデータは持たない）",
+      "reason": "CSV差し替えだけで話が変わる汎用性を優先。ノベルゲームの CSV サイズは小さく、起動時の1回解析のコストはほぼゼロ。"
+    },
+    {
+      "decision": "キャラクター素材の管理は CharacterRegistrySO に集約する",
+      "reason": "StoryManager をシナリオ再生に専念させるため。将来 Addressables に移行する際もここだけ変えれば済む。"
+    },
+    {
+      "decision": "GameFlowManager を上位に置き StoryManager を再生専用にする",
+      "reason": "長編・複数章・分岐シナリオに対応するため。StoryManager が増殖しない設計にする。"
+    },
+    {
+      "decision": "背景スプライトを StoryDataSO に持たせる",
+      "reason": "背景は話ごとに変わるもので StoryDataSO がまとめて持つのが自然。StoryManager の Inspector をシンプルに保つ。"
+    },
+    {
+      "decision": "CsvInput を MonoBehaviour から通常クラスに変更",
+      "reason": "Inspector に設定するフィールドがなく MonoBehaviour である必要がないため。StoryManager が内部で new() するだけでよい。"
+    }
+  ]
+}

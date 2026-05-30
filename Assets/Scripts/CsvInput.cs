@@ -25,16 +25,15 @@ public class DialogueData
     public int nextID;
 }
 
-public class CsvInput : MonoBehaviour
+public class CsvInput
 {
-    public TextAsset[] csvFiles;
     private List<DialogueData> dialogues = new List<DialogueData>();
 
-    public void StartLoadCSV(int i)
+    public void LoadStory(StoryDataSO storyData)
     {
-        if (i >= 0 && i < csvFiles.Length && csvFiles[i] != null)
+        if (storyData != null && storyData.csvFile != null)
         {
-            LoadCSV(csvFiles[i]);
+            LoadCSV(storyData.csvFile);
         }
     }
 
@@ -54,8 +53,8 @@ public class CsvInput : MonoBehaviour
 
             DialogueData data = new DialogueData();
 
-            data.id = int.Parse(values[0]);
-            
+            if (!int.TryParse(values[0].Trim(), out data.id)) continue;
+
             // 1人目の名前と表情
             data.character1 = !string.IsNullOrEmpty(values[1]) ? values[1] : "empty";
             data.emotion1 = ParseEmotion(values[2]);
@@ -70,10 +69,11 @@ public class CsvInput : MonoBehaviour
 
             // 残りのデータ（列がずれたので番号を修正）
             data.text = values[7];
-            data.bgImageNum = int.Parse(values[8]);
-            data.bgmNum = int.Parse(values[9]);
-            data.seNum = int.Parse(values[10]);
-            data.nextID = int.Parse(values[11]);
+            int.TryParse(values[8].Trim(), out data.bgImageNum);
+            int.TryParse(values[9].Trim(), out data.bgmNum);
+            int.TryParse(values[10].Trim(), out data.seNum);
+            int.TryParse(values[11].Trim(), out var nextID);
+            data.nextID = string.IsNullOrWhiteSpace(values[11]) ? -1 : nextID;
  
             dialogues.Add(data);
         }
