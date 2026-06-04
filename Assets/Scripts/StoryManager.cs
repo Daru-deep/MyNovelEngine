@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using TMPro;
 using UnityEngine.UI;
 
@@ -61,29 +62,38 @@ public class StoryManager : MonoBehaviour
         currentID = id;
     }
 
-    // 特定のスロット（Image）に対して、キャラ名と表情からSpriteを探して適用する共通処理
     private void UpdateCharacterSlot(string charName, EmotionType emotion, Image targetImage)
     {
-        if (targetImage == null) return;
+        if (targetImage == null) { Debug.LogWarning("[CS] targetImage が null"); return; }
 
-        if (charName != null)
+        if (charName != null && charName != "empty")
         {
-            CharacterData characterData = characterRegistry.Find(charName);
+            CharacterData characterData = characterRegistry != null ? characterRegistry.Find(charName) : null;
+            Debug.Log($"[CS] charName={charName} / characterData={characterData} / registry={characterRegistry}");
 
             if (characterData != null)
             {
                 Sprite faceSprite = characterData.GetFace(emotion);
+                Debug.Log($"[CS] faceSprite={faceSprite}");
                 if (faceSprite != null)
                 {
                     targetImage.gameObject.SetActive(true);
                     targetImage.sprite = faceSprite;
+                    targetImage.preserveAspect = true;
                     return;
                 }
             }
         }
 
-        // キャラ名が empty、または画像が見つからない場合はスロットを非表示にする
         targetImage.gameObject.SetActive(false);
+    }
+
+    private void Update()
+    {
+        if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
+        {
+            OnClickNextButton();
+        }
     }
 
     public void OnClickNextButton()

@@ -12,5 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2050cc1e13c4e1a4fa86517796f6475a, type: 3}
   m_Name: "0_\u6625\u3068\u4FEE\u7F85\uFF11"
   m_EditorClassIdentifier: Assembly-CSharp::StoryDataSO
-  storyTitle: 
-  csvFile: {fileID: 0}
+  storyTitle: "\u6625\u3068\u4FEE\u7F85\uFF08\u5E8F\u6587\uFF09"
+  csvFile: {fileID: 4900000, guid: e06750f3ab87b8d4aa3e1266ace81c67, type: 3}
+  backgroundSprites:
+  - {fileID: -5394874864621814200, guid: fc7e52c0e79bdcc4f85fccabc14cbe05, type: 3}

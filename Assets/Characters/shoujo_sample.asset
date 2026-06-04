@@ -10,7 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 486accc84795f4041ad897634ab946cc, type: 3}
-  m_Name: NewCharacter
+  m_Name: shoujo_sample
   m_EditorClassIdentifier: Assembly-CSharp::CharacterData
-  characterName: 
-  faces: []
+  characterName: "\u5C11\u5973"
+  faces:
+  - emotionType: 0
+    faceSprite: {fileID: 7996107238514986890, guid: 21edfa0c5dee0a34b82d46a23804965f, type: 3}
+  - emotionType: 1
+    faceSprite: {fileID: 6077629593597426104, guid: c88ea99fd3ed6884491a94bc3d0dd84d, type: 3}
+  - emotionType: 2
+    faceSprite: {fileID: -4619654474960366056, guid: 8e6504c012730fe46b270cafa1a9009b, type: 3}
